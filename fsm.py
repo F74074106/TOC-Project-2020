@@ -143,6 +143,7 @@ class TocMachine(GraphMachine):
 
         if a == 4:
             send_text_message(reply_token, "win")
+            self.back(event)
             
         else :
             #send_text_message(reply_token,"hi")
