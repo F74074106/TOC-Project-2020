@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 
 from flask import Flask, jsonify, request, abort, send_file
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ load_dotenv()
 
 
 machine = TocMachine(
-    states=["user", "state1", "state2"],
+    states=["user", "state1", "state2","state3"],
     transitions=[
         {
             "trigger": "advance",
@@ -24,11 +25,35 @@ machine = TocMachine(
         },
         {
             "trigger": "advance",
-            "source": "user",
+            "source": "state1",
             "dest": "state2",
             "conditions": "is_going_to_state2",
         },
-        {"trigger": "go_back", "source": ["state1", "state2"], "dest": "user"},
+        { 
+           "trigger" : "guess", "source": "state1","dest": "state2"
+
+        },
+        { 
+           "trigger" : "advance", "source": "state1","dest": "state2"
+
+        },
+        { 
+           "trigger" : "back", "source": "state2","dest": "state1"
+
+        },
+
+        
+        { 
+           "trigger" : "gogo", "source": "state2","dest": "state3"
+
+        },
+
+        { 
+           "trigger" : "backback", "source": "state3","dest": "state1"
+
+        },
+
+        {"trigger": "go_back", "source": ["state1", "state2","state3"], "dest": "user"},
     ],
     initial="user",
     auto_transitions=False,
@@ -39,8 +64,8 @@ app = Flask(__name__, static_url_path="")
 
 
 # get channel_secret and channel_access_token from your environment variable
-channel_secret = os.getenv("LINE_CHANNEL_SECRET", None)
-channel_access_token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", None)
+channel_secret = "77d13dbc2fb80567057f60ffa169e81d"
+channel_access_token = "UiTWR85NC/vEbt1U88KftJNrDZFAkySRwYWm1X6plnXO6QoUuf3OCdwQSpMJ1UJgL6WVp+O+W6F8rrVGEVlj2W+f6oyN7Jzc7xxB6s13pETXxE2AFqYqtCjVCQkXKcN+3YieMrg+KNLmM3lJUXEzNwdB04t89/1O/w1cDnyilFU="
 if channel_secret is None:
     print("Specify LINE_CHANNEL_SECRET as environment variable.")
     sys.exit(1)
@@ -100,11 +125,22 @@ def webhook_handler():
             continue
         if not isinstance(event.message.text, str):
             continue
+
+
+        #start
+        
         print(f"\nFSM STATE: {machine.state}")
         print(f"REQUEST BODY: \n{body}")
+
+
         response = machine.advance(event)
+
+        
         if response == False:
             send_text_message(event.reply_token, "Not Entering any State")
+        
+
+
 
     return "OK"
 
