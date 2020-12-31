@@ -20,6 +20,9 @@ class TocMachine(GraphMachine):
         text = event.message.text
         return text.lower() == "go to state2"
 
+    def is_going_to_demo(self, event):
+        text = event.message.text
+        return text.lower() == "demo"
     
 
 
@@ -87,7 +90,9 @@ class TocMachine(GraphMachine):
         
         
         
-
+    def on_enter_demo(self,event):
+        reply_token = event.reply_token
+        send_text_message(reply_token, "deeeeemoooooo")
 
     def on_exit_state1(self,event):
         print("Leaving state1")
